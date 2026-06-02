@@ -11,14 +11,14 @@ Use this for Messages.app history, chat lookup, streaming, visible UI contact lo
 
 In cmux/Codex/Claude terminals, do not probe with bare `imsg` first. The terminal process tree usually lacks Full Disk Access and bare `imsg` often fails with `authorization denied (code: 23)`.
 
-Use the cmux exporter wrapper by default for reads and explicit sends:
+Use the cmux iMessage helper by default for reads and explicit sends:
 
 ```bash
-tools/imsg-cloudvm-exporter/build/cmux-imsg-cloudvm status
-tools/imsg-cloudvm-exporter/build/cmux-imsg-cloudvm raw -- <imsg subcommand> ...
+tools/cmux-imsg/build/cmux-imsg status
+tools/cmux-imsg/build/cmux-imsg run -- <imsg subcommand> ...
 ```
 
-If status returns `ok: true`, the wrapper can pass through upstream `imsg` subcommands, including `send`. If it cannot connect to `/tmp/cmux-imsg-cloudvm-exporter.sock`, launch `tools/imsg-cloudvm-exporter/build/cmux iMessage Exporter.app` or `/Applications/cmux iMessage Exporter.app`, then retry.
+If status returns `ok: true`, the helper can pass through upstream `imsg` subcommands, including `send`. If it cannot connect to `/tmp/cmux-imsg.sock`, launch `tools/cmux-imsg/build/cmux iMessage Helper.app` or `/Applications/cmux iMessage Helper.app`, then retry.
 
 ## Sources
 
@@ -29,16 +29,16 @@ If status returns `ok: true`, the wrapper can pass through upstream `imsg` subco
 
 ## Read Workflow
 
-Check DB access through the wrapper:
+Check DB access through the helper:
 
 ```bash
-tools/imsg-cloudvm-exporter/build/cmux-imsg-cloudvm status
+tools/cmux-imsg/build/cmux-imsg status
 ```
 
 For a visible Messages.app person/name, start with chats. The UI-resolved name usually appears as `contact_name`; it may not appear in `imsg search`, raw `message.text`, or the `handle` table.
 
 ```bash
-tools/imsg-cloudvm-exporter/build/cmux-imsg-cloudvm raw -- chats --limit 200 --json \
+tools/cmux-imsg/build/cmux-imsg run -- chats --limit 200 --json \
   | jq -r '.commands[0].stdout' \
   | jq -s '.[] | select((.contact_name // .display_name // .name // .identifier // "" | ascii_downcase) | contains("beatrix"))'
 ```
@@ -46,7 +46,7 @@ tools/imsg-cloudvm-exporter/build/cmux-imsg-cloudvm raw -- chats --limit 200 --j
 Then read the chat by id:
 
 ```bash
-tools/imsg-cloudvm-exporter/build/cmux-imsg-cloudvm raw -- history --chat-id ID --json \
+tools/cmux-imsg/build/cmux-imsg run -- history --chat-id ID --json \
   | jq -r '.commands[0].stdout' | jq -s
 ```
 
@@ -61,10 +61,10 @@ Only send, react, mark read, or show typing when the user explicitly asks. Prefe
 Common send command:
 
 ```bash
-tools/imsg-cloudvm-exporter/build/cmux-imsg-cloudvm raw -- send --to "+15551234567" --text "message" --service auto
+tools/cmux-imsg/build/cmux-imsg run -- send --to "+15551234567" --text "message" --service auto
 ```
 
-The wrapper returns a JSON envelope. Treat `commands[0].exitCode == 0` and `commands[0].stdout` containing `sent` as success. Use bare `imsg send` only when the user has confirmed the current shell has Full Disk Access and Messages Automation permission.
+The helper returns a JSON envelope. Treat `commands[0].exitCode == 0` and `commands[0].stdout` containing `sent` as success. Use bare `imsg send` only when the user has confirmed the current shell has Full Disk Access and Messages Automation permission.
 
 ## Verification
 
@@ -78,5 +78,5 @@ make build
 For live read proof:
 
 ```bash
-tools/imsg-cloudvm-exporter/build/cmux-imsg-cloudvm raw -- chats --limit 3 --json | jq -r '.commands[0].stdout' | jq -s
+tools/cmux-imsg/build/cmux-imsg run -- chats --limit 3 --json | jq -r '.commands[0].stdout' | jq -s
 ```
