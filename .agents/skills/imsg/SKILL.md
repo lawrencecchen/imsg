@@ -20,6 +20,8 @@ tools/cmux-imsg/build/cmux-imsg run -- <imsg subcommand> ...
 
 If status returns `ok: true`, the helper can pass through upstream `imsg` subcommands, including `send`. If it cannot connect to `/tmp/cmux-imsg.sock`, launch `tools/cmux-imsg/build/cmux iMessage Helper.app` or `/Applications/cmux iMessage Helper.app`, then retry.
 
+If the helper returns `authorization denied (code: 23)`, grant Full Disk Access to `cmux iMessage Helper.app`, restart the helper, and retry the same helper command. Do not fall back to bare `imsg` unless the user has confirmed the current shell has Full Disk Access and Messages Automation.
+
 ## Sources
 
 - DB: `~/Library/Messages/chat.db`
