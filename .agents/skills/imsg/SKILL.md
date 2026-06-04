@@ -60,6 +60,8 @@ Direct DB checks are only a fallback. The `handle` table is keyed by phone/email
 
 Only send, react, mark read, or show typing when the user explicitly asks. Prefer dry wording in the final confirmation: recipient, service, and what was sent.
 
+Known contact override: when the user asks to text Austin or Austin Wang in the cmux/subrouter context, send to `+17146990169`. Do not rely on Messages contact-name resolution for Austin.
+
 Common send command:
 
 ```bash
